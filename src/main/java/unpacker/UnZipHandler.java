@@ -1,57 +1,44 @@
 package unpacker;
 
-import javax.servlet.http.HttpServletRequest;
 import java.io.*;
-import java.util.ArrayList;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
-import java.util.zip.ZipOutputStream;
 
 public class UnZipHandler {
-    private final String ZIP_ARCHIVE;
+    private final String ZIP_ARCHIVE1;
     private static final int BUFFER_SIZE = 128 * 1024;
 
     public UnZipHandler() {
-        this.ZIP_ARCHIVE = "C:/Users/Админ/Documents/GitHub/ZipArchiveHandler" +
+        this.ZIP_ARCHIVE1 = "C:/Users/Админ/Documents/GitHub/ZipArchiveHandler" +
                 "/src/main/resources/zip_archive.zip";
     }
 
     public UnZipHandler(String ZIP_ARCHIVE) {
-        this.ZIP_ARCHIVE = ZIP_ARCHIVE;
+        this.ZIP_ARCHIVE1 = ZIP_ARCHIVE;
     }
 
-    public byte[] zipToBytes() throws IOException {
-        ByteArrayOutputStream bos = new ByteArrayOutputStream();
-        ZipOutputStream zos = new ZipOutputStream(bos);
-        byte[] contents;
+    public byte[] zipToBytes(){
+        File file = new File(ZIP_ARCHIVE1);
 
-        File pdf = new File(ZIP_ARCHIVE);
+        byte[] bFile = new byte[(int) file.length()];
 
-        FileInputStream fis = new FileInputStream(pdf);
+        try (FileInputStream fileInputStream = new FileInputStream(ZIP_ARCHIVE1)) {
+            //convert file into array of bytes
+            fileInputStream.read(bFile);
 
-        ZipEntry zipEntry = new ZipEntry(ZIP_ARCHIVE.substring(ZIP_ARCHIVE.lastIndexOf(File.separator)+1));
-        zos.putNextEntry(zipEntry);
-
-        byte[] buffer = new byte[1024];
-
-        int len;
-
-        while ((len = fis.read(buffer)) > 0) {
-            zos.write(buffer,0,len);
+        }catch(Exception e){
+            e.printStackTrace();
         }
+        return bFile;
 
-        fis.close();
-        zos.closeEntry();
-        zos.flush();
 
-        contents = bos.toByteArray();
 
-        zos.close();
-        bos.close();
-        return contents;
+
     }
 
     public void unZip() {
+        final String ZIP_ARCHIVE = "C:/Users/Админ/Documents/GitHub/ZipArchiveHandler"
+                + "/src/main/resources/products.zip";
         byte[] buffer = new byte[BUFFER_SIZE];
 
         final String dstDirectory = destinationDirectory(ZIP_ARCHIVE);
