@@ -1,12 +1,15 @@
 package unpacker;
 
+import javax.servlet.http.HttpServletRequest;
 import java.io.*;
+import java.util.ArrayList;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
+import java.util.zip.ZipOutputStream;
 
 public class UnZipHandler {
     private final String ZIP_ARCHIVE;
-    private static final int BUFFER_SIZE = 1024;
+    private static final int BUFFER_SIZE = 128 * 1024;
 
     public UnZipHandler() {
         this.ZIP_ARCHIVE = "C:/Users/Админ/Documents/GitHub/ZipArchiveHandler" +
@@ -15,6 +18,37 @@ public class UnZipHandler {
 
     public UnZipHandler(String ZIP_ARCHIVE) {
         this.ZIP_ARCHIVE = ZIP_ARCHIVE;
+    }
+
+    public byte[] zipToBytes() throws IOException {
+        ByteArrayOutputStream bos = new ByteArrayOutputStream();
+        ZipOutputStream zos = new ZipOutputStream(bos);
+        byte[] contents;
+
+        File pdf = new File(ZIP_ARCHIVE);
+
+        FileInputStream fis = new FileInputStream(pdf);
+
+        ZipEntry zipEntry = new ZipEntry(ZIP_ARCHIVE.substring(ZIP_ARCHIVE.lastIndexOf(File.separator)+1));
+        zos.putNextEntry(zipEntry);
+
+        byte[] buffer = new byte[1024];
+
+        int len;
+
+        while ((len = fis.read(buffer)) > 0) {
+            zos.write(buffer,0,len);
+        }
+
+        fis.close();
+        zos.closeEntry();
+        zos.flush();
+
+        contents = bos.toByteArray();
+
+        zos.close();
+        bos.close();
+        return contents;
     }
 
     public void unZip() {
@@ -57,7 +91,26 @@ public class UnZipHandler {
         }
     }
 
+
     private String destinationDirectory(final String srcZip) {
         return srcZip.substring(0, srcZip.lastIndexOf("/"));
+    }
+
+    public void writeToFile(byte[] data) {
+        try {
+
+            FileOutputStream fop;
+            File file;
+
+            file = new File("C:/Users/Админ/Documents/GitHub/ZipArchiveHandler"
+                    + "/src/main/resources/products.zip");
+            fop = new FileOutputStream(file);
+            if (!file.exists()) {
+                file.createNewFile();
+            }
+            fop.write(data);
+        } catch (Exception E) {
+
+        }
     }
 }
