@@ -1,6 +1,7 @@
 package controllers;
 
 import com.sun.deploy.association.utility.AppConstants;
+import handlers.ByteUnZipHandler;
 import sun.rmi.runtime.Log;
 
 import javax.servlet.ServletException;
@@ -8,14 +9,16 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.*;
+import java.util.zip.ZipInputStream;
 
 public class ZipController extends HttpServlet {
 
     @Override
     protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
         System.out.println("in zip_controller");
-        String filePath = req.getParameter("path");
-        //writeToFile(getBytes(req));
+        String path = req.getParameter("path");
+        ByteUnZipHandler.writeToFile(getBytes(req));
+        ByteUnZipHandler.unZip(path);
     }
 
     private byte[] getBytes(HttpServletRequest request) {

@@ -1,48 +1,38 @@
-package unpacker;
+package handlers;
 
 import java.io.*;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
-public class UnZipHandler {
-    private final String ZIP_ARCHIVE1;
+public class ByteUnZipHandler {
     private static final int BUFFER_SIZE = 128 * 1024;
 
-    public UnZipHandler() {
-        this.ZIP_ARCHIVE1 = "C:/Users/Админ/Documents/GitHub/ZipArchiveHandler" +
-                "/src/main/resources/zip_archive.zip";
+    public ByteUnZipHandler() {
     }
 
-    public UnZipHandler(String ZIP_ARCHIVE) {
-        this.ZIP_ARCHIVE1 = ZIP_ARCHIVE;
-    }
-
-    public byte[] zipToBytes(){
-        File file = new File(ZIP_ARCHIVE1);
+    public static byte[] zipToBytes(final String ZIP_ARCHIVE){
+        File file = new File(ZIP_ARCHIVE);
 
         byte[] bFile = new byte[(int) file.length()];
 
-        try (FileInputStream fileInputStream = new FileInputStream(ZIP_ARCHIVE1)) {
-            //convert file into array of bytes
+        try (FileInputStream fileInputStream = new FileInputStream(ZIP_ARCHIVE)) {
             fileInputStream.read(bFile);
 
         }catch(Exception e){
             e.printStackTrace();
         }
         return bFile;
-
-
-
-
     }
 
-    public void unZip() {
-        final String ZIP_ARCHIVE = "C:/Users/Админ/Documents/GitHub/ZipArchiveHandler"
-                + "/src/main/resources/products.zip";
+    public static void unZip(String zipFilePath) {
+        System.out.println("in unzip");
+        System.out.println(zipFilePath);
+        final String ZIP_ARCHIVE = "c:\\Users\\Алексей\\Documents\\GitHub\\ZipArchiveHandler\\src\\main\\resources\\products.zip";
         byte[] buffer = new byte[BUFFER_SIZE];
 
-        final String dstDirectory = destinationDirectory(ZIP_ARCHIVE);
+        final String dstDirectory = destinationDirectory(zipFilePath);
         final File dstDir = new File(dstDirectory);
+        System.out.println(dstDir);
         if (!dstDir.exists()) {
             dstDir.mkdir();
         }
@@ -51,10 +41,11 @@ public class UnZipHandler {
                 new FileInputStream(ZIP_ARCHIVE))) {
 
             ZipEntry ze = zis.getNextEntry();
+            System.out.println(ze);
             String nextFileName;
             while (ze != null) {
                 nextFileName = ze.getName();
-                File nextFile = new File(dstDirectory + File.separator
+                File nextFile = new File(dstDirectory + "\\"
                         + nextFileName);
                 System.out.println("Распаковываем: "
                         + nextFile.getAbsolutePath());
@@ -73,24 +64,24 @@ public class UnZipHandler {
                 ze = zis.getNextEntry();
             }
             zis.closeEntry();
+            System.out.println("end unzip");
         } catch (IOException ex) {
             System.out.println("wtf");
         }
     }
 
 
-    private String destinationDirectory(final String srcZip) {
-        return srcZip.substring(0, srcZip.lastIndexOf("/"));
+    private static String destinationDirectory(final String srcZip) {
+        return srcZip.substring(0, srcZip.lastIndexOf("\\"));
     }
 
-    public void writeToFile(byte[] data) {
+    public static void writeToFile(byte[] data) {
         try {
 
             FileOutputStream fop;
             File file;
 
-            file = new File("C:/Users/Админ/Documents/GitHub/ZipArchiveHandler"
-                    + "/src/main/resources/products.zip");
+            file = new File("c:\\Users\\Алексей\\Documents\\GitHub\\ZipArchiveHandler\\src\\main\\resources\\products.zip");
             fop = new FileOutputStream(file);
             if (!file.exists()) {
                 file.createNewFile();
