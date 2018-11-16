@@ -1,4 +1,4 @@
-import handlers.ByteUnZipHandler;
+import handlers.ZipHandler;
 
 import java.io.IOException;
 
@@ -8,7 +8,7 @@ public class Main {
             "c:\\Users\\Алексей\\Documents\\GitHub\\ZipArchiveHandler\\src\\main\\resources\\zip_archive.zip";
 
     public static void main(String[] args) throws IOException {
-        ByteUnZipHandler.writeToFile(ByteUnZipHandler.zipToBytes(ZIP_ARCHIVE));
-        ByteUnZipHandler.unZip(ZIP_ARCHIVE);
+        ZipHandler.bytesToZip(ZipHandler.zipToBytes(ZIP_ARCHIVE));
+        ZipHandler.unZip(ZIP_ARCHIVE);
     }
 }

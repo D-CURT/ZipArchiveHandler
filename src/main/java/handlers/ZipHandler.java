@@ -1,80 +1,117 @@
 package handlers;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
+import javax.servlet.http.HttpServletRequest;
+import java.io.*;
 import java.util.zip.ZipEntry;
-import java.util.zip.ZipOutputStream;
+import java.util.zip.ZipInputStream;
 
 public class ZipHandler {
-    private List<String> fileList;
-    private static final String OUTPUT_ZIP_FILE = "E:\\java\\zip_complete_folder.zip";
-    private static final String SOURCE_FOLDER = "E:\\java\\zip_complete_folder";
-    public ZipHandler(){
-        fileList = new ArrayList<>();
+    private static final int BUFFER_SIZE = 128 * 1024;
+
+    public ZipHandler() {
     }
 
-    public static void main( String[] args ) {
-        ZipHandler appZip = new ZipHandler();
-        appZip.generateFileList(new File(SOURCE_FOLDER));
-        appZip.zipIt(OUTPUT_ZIP_FILE);
-    }
-    /**
-     * Zip it
-     * @param zipFile output ZIP file location
-     */
-    public void zipIt(String zipFile){
-        byte[] buffer = new byte[1024];
-        try{
-            FileOutputStream fos = new FileOutputStream(zipFile);
-            ZipOutputStream zos = new ZipOutputStream(fos);
-            System.out.println("Output to Zip : " + zipFile);
-            for(String file : this.fileList){
-                System.out.println("File Added : " + file);
-                ZipEntry ze= new ZipEntry(file);
-                zos.putNextEntry(ze);
-                FileInputStream in =
-                        new FileInputStream(SOURCE_FOLDER + File.separator + file);
-                int len;
-                while ((len = in.read(buffer)) > 0) {
-                    zos.write(buffer, 0, len);
+    public static byte[] getBytesFromRequest(HttpServletRequest request) {
+        int length = request.getContentLength();
+        try (InputStream is = new BufferedInputStream(request.getInputStream())) {
+            byte[] data = new byte[length];
+            int offset = 0;
+            while (offset < length) {
+                int read = is.read(data, offset, data.length - offset);
+                if (read < 0) {
+                    break;
                 }
-                in.close();
+                offset += read;
             }
-            zos.closeEntry();
-            //remember close it
-            zos.close();
-            System.out.println("Done");
-        }catch(IOException ex){
-            ex.printStackTrace();
-        }
-    }
-    /**
-     * Traverse a directory and get all files,
-     * and add the file into fileList
-     * @param node file or directory
-     */
-    public void generateFileList(File node){
-        //add file only
-        if(node.isFile()){
-            fileList.add(generateZipEntry(node.getAbsoluteFile().toString()));
-        }
-        if(node.isDirectory()){
-            String[] subNote = node.list();
-            for(String filename : subNote){
-                generateFileList(new File(node, filename));
+            if (offset < length) {
+                throw new IOException(
+                        String.format("Read %d bytes; expected %d", offset, length));
             }
+            return data;
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return new byte[0];
+    }
+
+    public static void bytesToZip(byte[] data) {
+        try {
+
+            FileOutputStream fop;
+            File file;
+
+            file = new File("c:\\Users\\Алексей\\Documents\\GitHub\\ZipArchiveHandler\\src\\main\\resources\\products.zip");
+            fop = new FileOutputStream(file);
+            if (!file.exists()) {
+                file.createNewFile();
+            }
+            fop.write(data);
+        } catch (Exception E) {
+
         }
     }
-    /**
-     * Format the file path for zip
-     * @param file file path
-     * @return Formatted file path
-     */
-    private String generateZipEntry(String file){
-        return file.substring(SOURCE_FOLDER.length()+1, file.length());
+
+    public static void unZip(String zipFilePath) {
+        System.out.println("in unzip");
+        System.out.println(zipFilePath);
+        final String ZIP_ARCHIVE = "c:\\Users\\Алексей\\Documents\\GitHub\\ZipArchiveHandler\\src\\main\\resources\\products.zip";
+        byte[] buffer = new byte[BUFFER_SIZE];
+
+        final String dstDirectory = destinationDirectory(zipFilePath);
+        final File dstDir = new File(dstDirectory);
+        System.out.println(dstDir);
+        if (!dstDir.exists()) {
+            dstDir.mkdir();
+        }
+
+        try (ZipInputStream zis = new ZipInputStream(
+                new FileInputStream(ZIP_ARCHIVE))) {
+
+            ZipEntry ze = zis.getNextEntry();
+            System.out.println(ze);
+            String nextFileName;
+            while (ze != null) {
+                nextFileName = ze.getName();
+                File nextFile = new File(dstDirectory + "\\"
+                        + nextFileName);
+                System.out.println("Распаковываем: "
+                        + nextFile.getAbsolutePath());
+                if (ze.isDirectory()) {
+                    nextFile.mkdir();
+                } else {
+                    new File(nextFile.getParent()).mkdirs();
+                    try (FileOutputStream fos
+                                 = new FileOutputStream(nextFile)) {
+                        int length;
+                        while((length = zis.read(buffer)) > 0) {
+                            fos.write(buffer, 0, length);
+                        }
+                    }
+                }
+                ze = zis.getNextEntry();
+            }
+            zis.closeEntry();
+            System.out.println("end unzip");
+        } catch (IOException ex) {
+            System.out.println("wtf");
+        }
     }
+
+    private static String destinationDirectory(final String srcZip) {
+        return srcZip.substring(0, srcZip.lastIndexOf("\\"));
+    }
+
+    /*public static byte[] zipToBytes(final String ZIP_ARCHIVE){
+        File file = new File(ZIP_ARCHIVE);
+
+        byte[] bFile = new byte[(int) file.length()];
+
+        try (FileInputStream fileInputStream = new FileInputStream(ZIP_ARCHIVE)) {
+            fileInputStream.read(bFile);
+
+        }catch(Exception e){
+            e.printStackTrace();
+        }
+        return bFile;
+    }*/
 }
