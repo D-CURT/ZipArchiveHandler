@@ -11,7 +11,11 @@ public class ZipHandler {
     public ZipHandler() {
     }
 
-    public static byte[] getBytesFromRequest(HttpServletRequest request) {
+    /*public void readRequest(HttpServletRequest request, String dstDir) {
+
+    }
+
+    public  byte[] getBytesFromRequest(HttpServletRequest request) {
         int length = request.getContentLength();
         try (InputStream is = new BufferedInputStream(request.getInputStream())) {
             byte[] data = new byte[length];
@@ -32,7 +36,7 @@ public class ZipHandler {
             e.printStackTrace();
         }
         return new byte[0];
-    }
+    }*/
 
     public static void bytesToZip(byte[] data) {
         try {
@@ -55,6 +59,8 @@ public class ZipHandler {
         System.out.println("in unzip");
         System.out.println(zipFilePath);
         final String ZIP_ARCHIVE = "c:\\Users\\Алексей\\Documents\\GitHub\\ZipArchiveHandler\\src\\main\\resources\\products.zip";
+
+
         byte[] buffer = new byte[BUFFER_SIZE];
 
         final String dstDirectory = destinationDirectory(zipFilePath);
@@ -65,7 +71,7 @@ public class ZipHandler {
         }
 
         try (ZipInputStream zis = new ZipInputStream(
-                new FileInputStream(ZIP_ARCHIVE))) {
+                new FileInputStream(zipFilePath))) {
 
             ZipEntry ze = zis.getNextEntry();
             System.out.println(ze);
@@ -101,7 +107,7 @@ public class ZipHandler {
         return srcZip.substring(0, srcZip.lastIndexOf("\\"));
     }
 
-    /*public static byte[] zipToBytes(final String ZIP_ARCHIVE){
+    public static byte[] zipToBytes(final String ZIP_ARCHIVE){
         File file = new File(ZIP_ARCHIVE);
 
         byte[] bFile = new byte[(int) file.length()];
@@ -113,5 +119,5 @@ public class ZipHandler {
             e.printStackTrace();
         }
         return bFile;
-    }*/
+    }
 }
